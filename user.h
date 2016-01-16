@@ -25,7 +25,7 @@ int sleep(int);
 int uptime(void);
 // added system calls
 int procsave(void);
-int procload(int);
+int procload(void);
 
 // ulib.c
 int stat(char*, struct stat*);

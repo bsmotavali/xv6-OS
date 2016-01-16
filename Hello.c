@@ -1,9 +1,14 @@
 /* Hello World program */
 
+#include "param.h"
 #include "types.h"
 #include "stat.h"
 #include "user.h"
+#include "fs.h"
 #include "fcntl.h"
+#include "syscall.h"
+#include "traps.h"
+#include "memlayout.h"
 
 int main()
 {
@@ -17,7 +22,7 @@ int main()
   //for(i = 0; i<n; i++){
     // for(i = 0; i<c; i++){
       //  count = count + 1;
-        //printf(1,"Hello World ...\n");
+        printf(1,"Hello World ...\n");
         //exit();
 //}
 //}
@@ -32,8 +37,8 @@ int main()
   if (pid == 0) {
         int i;
         for (i = 0; i < 4; i++) {
-            count++;
             printf(1, "Counted Number : %d\n", count);
+            count++;
             sleep(50);
         }
         // Call to procsave to save process state
@@ -41,8 +46,8 @@ int main()
         procsave();
         // Reload process it should start PC from here
         for (i = 4; i < 8; i++) {
-            count++;
             printf(1, "Counted Number : %d\n", count);
+            count++;
             sleep(50);
         }
     }
@@ -52,6 +57,8 @@ int main()
     }
 
     wait();
+    //procsave();
+    //procload();
     exit();
 
 }

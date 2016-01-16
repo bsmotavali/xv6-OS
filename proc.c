@@ -6,6 +6,9 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "fs.h"
+#include "buf.h"
+#include "file.h"
 
 struct {
   struct spinlock lock;
@@ -470,13 +473,103 @@ procdump(void)
 int
 procsave(void)
 {
- return 0;
+ cprintf("suspending process ...\n");
+    int i, pid;
+    struct proc *np;
+    if ((np = allocproc()) == 0)
+        return -1;
+
+    // Copy process state from p.
+    if ((np->pgdir = copyuvm(proc->pgdir, proc->sz)) == 0) {
+        kfree(np->kstack);
+        np->kstack = 0;
+        np->state = UNUSED;
+        return -1;
+    }
+    np->sz = proc->sz;
+    np->parent = proc;
+    *np->tf = *proc->tf;
+
+    // Clear %eax so that fork returns 0 in the child.
+    np->tf->eax = 0;
+
+    for (i = 0; i < NOFILE; i++)
+        if (proc->ofile[i])
+            np->ofile[i] = filedup(proc->ofile[i]);
+    np->cwd = idup(proc->cwd);
+
+    safestrcpy(np->name, proc->name, sizeof(proc->name));
+
+    pid = np->pid;
+
+    // Allocate process
+    struct buf *buffer = bread(1, 800);
+
+    cprintf("#############################\n");
+    cprintf("#process %s suspended\n#process id: %d\n#size: %d\n", proc->name, proc->pid,
+            proc->sz);
+    cprintf("#############################\n");
+
+    // Write proc state to buffer
+    memmove(buffer->data, proc, sizeof(*proc));
+    bwrite(buffer);
+    brelse(buffer);
+
+    exit();
+    return pid;
+    //return 0;
 }
 
 // load saved process state to cpu
 int
-procload(int procid)
+procload(void)
 {
- return 0;
+ cprintf("resuming process ...\n");
+
+
+    // Read process state from buffer
+    struct buf *buffer = bread(1, 800);
+
+    int pid;
+    struct proc *p_load;
+    p_load = (struct proc *) buffer->data;
+    brelse(buffer);
+    struct proc *np;
+
+    // Allocate process.
+    if ((np = allocproc()) == 0)
+        return -1;
+
+    // Just like the fork function, but this time, we copy states from p_load, not proc
+    // Copy process state from p_load.
+    if ((np->pgdir = copyuvm(p_load->pgdir, p_load->sz)) == 0) {
+        kfree(np->kstack);
+        np->kstack = 0;
+        np->state = UNUSED;
+        return -1;
+    }
+    np->sz = p_load->sz;
+    np->parent = p_load;
+    *np->tf = *p_load->tf;
+
+    // Clear %eax so that fork returns 0 in the child.
+    np->tf->eax = 0;
+    int i;
+    for (i = 0; i < NOFILE; i++)
+        if (p_load->ofile[i])
+            np->ofile[i] = filedup(p_load->ofile[i]);
+    np->cwd = idup(p_load->cwd);
+
+    safestrcpy(np->name, p_load->name, sizeof(p_load->name));
+
+    pid = np->pid;
+
+    // lock to force the compiler to emit the np->state write last.
+    acquire(&ptable.lock);
+    np->state = RUNNABLE;
+    release(&ptable.lock);
+
+    return pid;
+    //return 0;
 }
 

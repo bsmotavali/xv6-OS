@@ -94,10 +94,11 @@ sys_uptime(void)
 
 // added system calls
 // save process state to memory
+
 int
 sys_procsave(void)
 {
-  cprintf("Save System Call");
+  cprintf("Save System Call \n");
   //uint size = proc->sz;                     // Size of process memory (bytes)
   //pde_t* paget = proc->pgdir;                // Page table
   //char *kstack = proc->kstack;                // Bottom of kernel stack for this process
@@ -114,13 +115,15 @@ sys_procsave(void)
 
   // Allocate file to save data
   //struct file* filealloc(void);
-  return procsave();
+  //return procsave();
+  return 0;
 }
 
 // load saved process state to cpu
 int
-sys_procload(int procid)
+sys_procload(void)
 {
- cprintf("Load System Call");
- return procload();
+ cprintf("Load System Call \n");
+ //return procload();
+ return 0;
 }
