@@ -464,3 +464,19 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+// added system calls
+// save process state to memory
+int
+procsave(void)
+{
+ return 0;
+}
+
+// load saved process state to cpu
+int
+procload(int procid)
+{
+ return 0;
+}
+

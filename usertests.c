@@ -1706,6 +1706,7 @@ rand()
 int
 main(int argc, char *argv[])
 {
+/*
   printf(1, "usertests starting\n");
 
   if(open("usertests.ran", 0) >= 0){
@@ -1752,6 +1753,7 @@ main(int argc, char *argv[])
   forktest();
   bigdir(); // slow
   exectest();
+*/
 
   exit();
 }

@@ -114,7 +114,7 @@ sys_procsave(void)
 
   // Allocate file to save data
   //struct file* filealloc(void);
-  return 0;
+  return procsave();
 }
 
 // load saved process state to cpu
@@ -122,5 +122,5 @@ int
 sys_procload(int procid)
 {
  cprintf("Load System Call");
- return 0;
+ return procload();
 }

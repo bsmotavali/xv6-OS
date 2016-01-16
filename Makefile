@@ -173,6 +173,7 @@ UPROGS=\
 	_wc\
 	_zombie\
         _Hello\
+        _my_process\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
